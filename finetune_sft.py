@@ -21,7 +21,7 @@ from transformers import AutoModelForMaskedLM, get_scheduler
 from datasets import load_from_disk
 from accelerate import Accelerator
 from tqdm import tqdm
-from safetensors.torch import load_file, save_file
+from safetensors.torch import load_file, save_model
 
 from tokenizer import get_tokenizer
 from data_utils import SFTCollator
@@ -316,8 +316,7 @@ def main():
                             tqdm.write(f"      New best! Saving...")
                             best_dir = os.path.join(exp_dir, "best_model")
                             os.makedirs(best_dir, exist_ok=True)
-                            state = accelerator.get_state_dict(model)
-                            save_file(state, os.path.join(best_dir, "model.safetensors"))
+                            save_model(model, os.path.join(best_dir, "model.safetensors"))
                     
                     model.train()
                 
@@ -326,8 +325,7 @@ def main():
                     if accelerator.is_main_process:
                         ckpt_dir = os.path.join(exp_dir, f"checkpoint_{completed}")
                         os.makedirs(ckpt_dir, exist_ok=True)
-                        state = accelerator.get_state_dict(model)
-                        save_file(state, os.path.join(ckpt_dir, "model.safetensors"))
+                        save_model(model, os.path.join(ckpt_dir, "model.safetensors"))
                         tqdm.write(f"Saved: {ckpt_dir}")
                 
                 completed += 1
@@ -341,8 +339,7 @@ def main():
     if accelerator.is_main_process:
         final_dir = os.path.join(exp_dir, "final_model")
         os.makedirs(final_dir, exist_ok=True)
-        state = accelerator.get_state_dict(model)
-        save_file(state, os.path.join(final_dir, "model.safetensors"))
+        save_model(model, os.path.join(final_dir, "model.safetensors"))
         tokenizer.save_pretrained(final_dir)
         
         accelerator.print("\n" + "=" * 60)
