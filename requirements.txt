@@ -1,0 +1,9 @@
+torch
+transformers
+datasets
+accelerate
+safetensors
+numpy
+tqdm
+rich
+streamlit
